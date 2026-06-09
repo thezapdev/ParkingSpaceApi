@@ -16,8 +16,8 @@ public class ReservationsController : ControllerBase
     public ActionResult<IEnumerable<Reservation>> Get() => Ok(_service.GetAll());
     
 
-    [HttpGet("{id:int}")]
-    public ActionResult<Reservation> Get(int id)
+    [HttpGet("{id:guid}")]
+    public ActionResult<Reservation> Get(Guid id)
     {
        var reservation = _service.Get(id);
        if (reservation == null)
@@ -39,8 +39,8 @@ public class ReservationsController : ControllerBase
        return CreatedAtAction(nameof(Get), new { id = id }, null);
     }
 
-    [HttpPut("{id:int}")]
-    public ActionResult Put(int id,Reservation reservation)
+    [HttpPut("{id:guid}")]
+    public ActionResult Put(Guid id,Reservation reservation)
     {
         reservation.Id = id;
         if (_service.Update(id, reservation))
@@ -51,8 +51,8 @@ public class ReservationsController : ControllerBase
 
     }
 
-    [HttpDelete("{id:int}")]
-    public ActionResult Delete(int id)
+    [HttpDelete("{id:guid}")]
+    public ActionResult Delete(Guid id)
     {
         if (_service.Delate(id))
         {

@@ -1,49 +1,35 @@
+using MySpot.Api.Entities;
 using MySpot.Api.Models;
 
 namespace MySpot.Api.Services;
 
 public class ReservationService
 {
-    private static int _id = 1;
-    private static readonly List<Reservation> Reservations = new();
 
-    private static readonly List<string> _parkingSpotNames = new List<string>()
+    private static readonly List<WeeklyParkingSpot> WeeklyParkingSpots = new List<WeeklyParkingSpot>()
     {
-        "P1", "P2", "P3", "P4", "P5"
+        new WeeklyParkingSpot(Guid.NewGuid(),DateTime.UtcNow,DateTime.UtcNow.AddDays(7),"P1"),
+        new WeeklyParkingSpot(Guid.NewGuid(),DateTime.UtcNow,DateTime.UtcNow.AddDays(7),"P2"),
+        new WeeklyParkingSpot(Guid.NewGuid(),DateTime.UtcNow,DateTime.UtcNow.AddDays(7),"P3"),
+        new WeeklyParkingSpot(Guid.NewGuid(),DateTime.UtcNow,DateTime.UtcNow.AddDays(7),"P4"),
+        new WeeklyParkingSpot(Guid.NewGuid(),DateTime.UtcNow,DateTime.UtcNow.AddDays(7),"P5")
     };
 
-    public Reservation Get(int id)
+    public Reservation Get(Guid id) => GetAllWeekly().SingleOrDefault(w => w.Id == id);
     
-      => Reservations.SingleOrDefault(x => x.Id == id);
-    
-    public IEnumerable<Reservation> GetAll() => Reservations;
+    public IEnumerable<Reservation> GetAllWeekly() => WeeklyParkingSpots.SelectMany(x => x.Reservations);
 
-    public int? Create(Reservation reservation)
+    public Guid? Create(Reservation reservation)
     {
-        var now = DateTime.UtcNow.Date;
-        var pastDays = now.DayOfWeek  is DayOfWeek.Sunday ? 7 : (int) now.DayOfWeek;
-        var remaining = 7 - pastDays;
+        var weeklyParkingSpot = WeeklyParkingSpots.SingleOrDefault(x => x.Id == reservation.ParkingSpotId);
+
+        if (weeklyParkingSpot == null)
+        {
+            return default;
+        }
         
-        if (_parkingSpotNames.All(x => x != reservation.ParkingSpotName))
-        {
-            return default;
-        }
-
-        if (!(reservation.Date.Date >= now && reservation.Date.Date <= now.AddDays(remaining)))
-        {
-            return default;
-        }
-        reservation.Date = DateTime.UtcNow.AddDays(1).Date;
-
-        var reservationAlreadyExists = Reservations.Any(x => x.ParkingSpotName == reservation.ParkingSpotName && x.Date.Date == reservation.Date.Date);
-
-        if (reservationAlreadyExists)
-        {
-            return default;
-        }
-        reservation.Id = _id;
-        _id++;
-        Reservations.Add(reservation);
+        reservation.Id =  Guid.NewGuid();
+        weeklyParkingSpot.AddReservation(reservation);
     return reservation.Id;
     }
 
