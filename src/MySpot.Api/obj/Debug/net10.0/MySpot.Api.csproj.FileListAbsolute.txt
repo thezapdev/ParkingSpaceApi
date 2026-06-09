@@ -31,3 +31,4 @@ C:\Users\karol\Desktop\MySpot\src\MySpot.Api\obj\Debug\net10.0\refint\MySpot.Api
 C:\Users\karol\Desktop\MySpot\src\MySpot.Api\obj\Debug\net10.0\MySpot.Api.pdb
 C:\Users\karol\Desktop\MySpot\src\MySpot.Api\obj\Debug\net10.0\MySpot.Api.genruntimeconfig.cache
 C:\Users\karol\Desktop\MySpot\src\MySpot.Api\obj\Debug\net10.0\ref\MySpot.Api.dll
+C:\Users\karol\Desktop\MySpot\src\MySpot.Api\obj\Debug\net10.0\MySpot.Api.sourcelink.json

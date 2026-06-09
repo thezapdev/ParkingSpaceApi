@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MySpot.Api.Models;
+using MySpot.Api.Services;
 
 namespace MySpot.Api.Controllers;
 
@@ -7,51 +8,56 @@ namespace MySpot.Api.Controllers;
 [Route("reservations")]
 public class ReservationsController : ControllerBase
 {
-    private static int _id = 1;
-    private static readonly List<Reservation> Reservations = new();
+    private static readonly ReservationService _service  = new();
 
-    private static readonly List<string> _parkingSpotNames = new List<string>()
-    {
-        "P1", "P2", "P3", "P4", "P5"
-    };
+    
 
     [HttpGet]
-    public IEnumerable<Reservation> Get() => Reservations;
+    public ActionResult<IEnumerable<Reservation>> Get() => Ok(_service.GetAll());
+    
 
     [HttpGet("{id:int}")]
     public ActionResult<Reservation> Get(int id)
     {
-        var reservation = Reservations.SingleOrDefault(x => x.Id == id);
-
-        if (reservation == null)
-        {
-            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-            return default;
-        } 
-        return Ok(reservation);
+       var reservation = _service.Get(id);
+       if (reservation == null)
+       {
+           return NotFound();
+       }
+       return Ok(reservation);
     }
     
     [HttpPost]
     public ActionResult Post( Reservation reservation)
     {
-        if (_parkingSpotNames.All(x => x != reservation.ParkingSpotName))
-        {
-            return  BadRequest();
-        }
-        
-        reservation.Date = DateTime.UtcNow.AddDays(1).Date;
+       var id =_service.Create(reservation);
+       if (id is null)
+       {
+           return BadRequest();
+       }
 
-        var reservationAlreadyExists = Reservations.Any(x => x.ParkingSpotName == reservation.ParkingSpotName && x.Date.Date == reservation.Date.Date);
-
-        if (reservationAlreadyExists)
-        {
-            return  BadRequest();
-        }
-        reservation.Id = _id;
-        _id++;
-        Reservations.Add(reservation);
-        
-        return CreatedAtAction(nameof(Get), new {id = reservation.Id}, null);
+       return CreatedAtAction(nameof(Get), new { id = id }, null);
     }
-  
+
+    [HttpPut("{id:int}")]
+    public ActionResult Put(int id,Reservation reservation)
+    {
+        reservation.Id = id;
+        if (_service.Update(id, reservation))
+        {
+            return NoContent();
+        }
+        return NotFound();
+
+    }
+
+    [HttpDelete("{id:int}")]
+    public ActionResult Delete(int id)
+    {
+        if (_service.Delate(id))
+        {
+            return NoContent();
+        }
+        return NotFound();
+    }
 }
